@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Namma Vaidya — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #060f0d;
+      --surface: #0e1e1a;
+      --surface2: #162820;
+      --primary: #00c9a7;
+      --primary-dark: #009e84;
+      --text: #e8f5f2;
+      --text-muted: #6b9e94;
+      --border: #1e3530;
+      --error: #ff6b6b;
+      --warn: #f0c040;
+      --radius: 14px;
+      --nav-w: 240px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--nav-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 32px 20px;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 50;
+    }
+    .sidebar-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.2rem;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+    .sidebar-logo-sub {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 36px;
+    }
+
+    .nav-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      padding: 0 8px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 12px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 4px;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active { background: rgba(0,201,167,0.12); color: var(--primary); }
+    .nav-item .icon { font-size: 1rem; width: 20px; text-align: center; }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    .doctor-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--surface2);
+    }
+    .doctor-avatar {
+      width: 34px; height: 34px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: 0.85rem;
+      color: #000;
+      flex-shrink: 0;
+    }
+    .doctor-info { flex: 1; overflow: hidden; }
+    .doctor-name { font-size: 0.82rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .doctor-role { font-size: 0.68rem; color: var(--text-muted); }
+    .logout-btn {
+      margin-top: 10px;
+      width: 100%;
+      padding: 9px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover { border-color: var(--error); color: var(--error); }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: var(--nav-w);
+      flex: 1;
+      padding: 40px 48px;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── PAGE HEADER ── */
+    .page-header { margin-bottom: 32px; }
+    .page-header h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.9rem;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+    .page-header p { font-size: 0.9rem; color: var(--text-muted); margin-top: 5px; }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+    }
+    .stat-card .s-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; }
+    .stat-card .s-value { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2rem; color: var(--primary); }
+    .stat-card .s-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* ── FORM CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      margin-bottom: 24px;
+    }
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: 1.05rem;
+      color: var(--text);
+      margin-bottom: 22px;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 7px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    input, select, textarea {
+      padding: 12px 15px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input::placeholder, textarea::placeholder { color: #2a4a45; }
+    select option { background: var(--surface2); }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0,201,167,0.08);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+
+    .vitals-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .analyse-btn {
+      width: 100%;
+      margin-top: 20px;
+      padding: 15px;
+      background: var(--primary);
+      color: #000;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .analyse-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .analyse-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── RESULTS ── */
+    #resultsSection { display: none; animation: fadeIn 0.5s ease forwards; }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .result-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      text-align: center;
+    }
+    .result-card .rc-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px; }
+    .result-card .rc-value { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2rem; }
+    .rc-value.low      { color: #00c9a7; }
+    .rc-value.moderate { color: var(--warn); }
+    .rc-value.high     { color: var(--error); }
+    .result-card .rc-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+    .risk-bar-wrap { background: var(--border); border-radius: 100px; height: 8px; overflow: hidden; margin-top: 12px; }
+    .risk-bar { height: 100%; border-radius: 100px; transition: width 1.2s cubic-bezier(0.16,1,0.3,1); width: 0; }
+    .risk-bar.low      { background: linear-gradient(90deg, #00c9a7, #14a366); }
+    .risk-bar.moderate { background: linear-gradient(90deg, #f0c040, #e08a00); }
+    .risk-bar.high     { background: linear-gradient(90deg, #ff6b6b, #d63031); }
+
+    .treatment-card {
+      background: linear-gradient(135deg, #0d3b30 0%, #0a2820 100%);
+      border: 1px solid #1e5040;
+      border-radius: var(--radius);
+      padding: 28px 32px;
+    }
+    .treatment-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: 1rem;
+      margin-bottom: 16px;
+      color: var(--primary);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .treatment-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .treatment-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.88rem; line-height: 1.5; color: var(--text); }
+    .treatment-list li::before { content: '→'; color: var(--primary); font-weight: 700; flex-shrink: 0; }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .tag {
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 0.75rem; font-weight: 500;
+      background: rgba(0,201,167,0.1);
+      border: 1px solid rgba(0,201,167,0.25);
+      color: var(--primary);
+    }
+
+    /* ── QUANTUM RESULT CARD ── */
+    .quantum-result-card {
+      background: linear-gradient(135deg, #080f1e 0%, #060d18 100%);
+      border: 1px solid #1e2d50;
+      border-radius: 20px;
+      padding: 30px 36px;
+      margin-bottom: 24px;
+      animation: fadeIn 0.6s ease forwards;
+    }
+    .quantum-result-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .quantum-result-header .qr-icon { font-size: 1.4rem; }
+    .quantum-result-header h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: 1rem;
+      color: #7eb8f7;
+    }
+    .quantum-result-header p {
+      font-size: 0.75rem;
+      color: #4a6e9e;
+      margin-top: 2px;
+    }
+    .quantum-live-pill {
+      margin-left: auto;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 0.68rem; font-weight: 600;
+      background: rgba(126,184,247,0.1);
+      border: 1px solid rgba(126,184,247,0.3);
+      color: #7eb8f7;
+      white-space: nowrap;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .qlive-dot {
+      width: 6px; height: 6px;
+      background: #7eb8f7;
+      border-radius: 50%;
+      animation: qpulse 1.5s ease-in-out infinite;
+    }
+    @keyframes qpulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    .quantum-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1.4fr;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .q-cell {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid #1e2d50;
+      border-radius: 12px;
+      padding: 18px 16px;
+      text-align: center;
+    }
+    .q-cell .q-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #4a6e9e;
+      margin-bottom: 10px;
+    }
+    .q-cell .q-value {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.6rem;
+      color: #7eb8f7;
+    }
+    .q-cell .q-sub {
+      font-size: 0.72rem;
+      color: #4a6e9e;
+      margin-top: 4px;
+    }
+    .q-cell.q-confidence .q-value {
+      font-size: 1.8rem;
+    }
+
+    /* Probability bars */
+    .q-prob-section { margin-top: 4px; }
+    .q-prob-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .q-prob-row:last-child { margin-bottom: 0; }
+    .q-prob-label {
+      font-size: 0.72rem;
+      color: #4a6e9e;
+      width: 68px;
+      flex-shrink: 0;
+    }
+    .q-prob-bar-wrap {
+      flex: 1;
+      height: 6px;
+      background: #0e1a2e;
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .q-prob-bar {
+      height: 100%;
+      border-radius: 100px;
+      transition: width 1.2s cubic-bezier(0.16,1,0.3,1);
+      width: 0;
+    }
+    .q-prob-bar.low      { background: #00c9a7; }
+    .q-prob-bar.moderate { background: #f0c040; }
+    .q-prob-bar.high     { background: #ff6b6b; }
+    .q-prob-pct {
+      font-size: 0.72rem;
+      color: #7eb8f7;
+      width: 38px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .quantum-match-note {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      margin-top: 6px;
+    }
+    .quantum-match-note.match {
+      background: rgba(0,201,167,0.06);
+      border: 1px solid rgba(0,201,167,0.15);
+      color: #00c9a7;
+    }
+    .quantum-match-note.differ {
+      background: rgba(240,192,64,0.06);
+      border: 1px solid rgba(240,192,64,0.2);
+      color: var(--warn);
+    }
+
+    /* ── QUANTUM COMING SOON BANNER ── */
+    .quantum-banner {
+      background: linear-gradient(135deg, #0a2820 0%, #061510 100%);
+      border: 1px solid #1e4035;
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      display: flex; align-items: center; gap: 20px;
+      margin-bottom: 24px;
+    }
+    .quantum-banner .qb-icon { font-size: 2rem; flex-shrink: 0; }
+    .quantum-banner h4 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--primary); margin-bottom: 4px; }
+    .quantum-banner p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+    .soon-pill {
+      margin-left: auto;
+      flex-shrink: 0;
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 0.72rem; font-weight: 600;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      background: rgba(0,201,167,0.08);
+      white-space: nowrap;
+    }
+
+    /* ── RECORDS TABLE ── */
+    .records-table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    thead tr { border-bottom: 1px solid var(--border); }
+    th { text-align: left; padding: 10px 14px; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 500; }
+    td { padding: 13px 14px; border-bottom: 1px solid rgba(30,53,48,0.5); color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+
+    .risk-pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 0.72rem; font-weight: 600;
+    }
+    .risk-pill.Low      { background: rgba(0,201,167,0.12); color: #00c9a7; }
+    .risk-pill.Moderate { background: rgba(240,192,64,0.12); color: var(--warn); }
+    .risk-pill.High     { background: rgba(255,107,107,0.12); color: var(--error); }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+    .empty-state .ei { font-size: 2.5rem; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div>
+    <div class="sidebar-logo">Namma Vaidya</div>
+    <div class="sidebar-logo-sub">ನಮ್ಮ ವೈದ್ಯ</div>
+
+    <div class="nav-label">Menu</div>
+    <a class="nav-item active" id="nav-analyse" onclick="showPage('analyse')">
+      <span class="icon">🔍</span> Analyse Patient
+    </a>
+    <a class="nav-item" id="nav-records" onclick="showPage('records')">
+      <span class="icon">📋</span> Patient Records
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="doctor-chip">
+      <div class="doctor-avatar" id="avatarInitial">D</div>
+      <div class="doctor-info">
+        <div class="doctor-name" id="sidebarName">Doctor</div>
+        <div class="doctor-role">Registered Doctor</div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="logout()">Sign Out</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ── ANALYSE PAGE ── -->
+  <div class="page active" id="page-analyse">
+    <div class="page-header">
+      <h1>Patient Analysis</h1>
+      <p>Enter patient details to get AI-powered risk assessment and treatment suggestions.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="s-label">Total Records</div>
+        <div class="s-value" id="statTotal">—</div>
+        <div class="s-sub">Patients analysed</div>
+      </div>
+      <div class="stat-card">
+        <div class="s-label">High Risk</div>
+        <div class="s-value" id="statHigh" style="color:var(--error)">—</div>
+        <div class="s-sub">Require urgent care</div>
+      </div>
+      <div class="stat-card">
+        <div class="s-label">Low Risk</div>
+        <div class="s-value" id="statLow" style="color:#00c9a7">—</div>
+        <div class="s-sub">Outpatient management</div>
+      </div>
+    </div>
+
+    <!-- Input Form -->
+    <div class="card">
+      <div class="card-title">🧑‍⚕️ Patient Information</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Patient Name</label>
+          <input type="text" id="patientName" placeholder="Full name"/>
+        </div>
+        <div class="form-group">
+          <label>Age</label>
+          <input type="number" id="age" placeholder="e.g. 45" min="1" max="120"/>
+        </div>
+        <div class="form-group">
+          <label>Gender</label>
+          <select id="gender">
+            <option value="">Select</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Medical History</label>
+          <select id="history">
+            <option value="">None significant</option>
+            <option>Diabetes</option>
+            <option>Hypertension</option>
+            <option>Heart disease</option>
+            <option>Asthma / COPD</option>
+            <option>Multiple conditions</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Primary Symptoms</label>
+          <textarea id="symptoms" placeholder="Describe the main symptoms... e.g. persistent chest pain, shortness of breath, fatigue"></textarea>
+        </div>
+        <div class="form-group full">
+          <label>Basic Vitals</label>
+          <div class="vitals-grid">
+            <input type="text" id="bp" placeholder="BP e.g. 120/80"/>
+            <input type="text" id="pulse" placeholder="Pulse e.g. 78 bpm"/>
+            <input type="text" id="temp" placeholder="Temp e.g. 98.6°F"/>
+            <input type="text" id="spo2" placeholder="SpO₂ e.g. 97%"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Symptom Duration</label>
+          <select id="duration">
+            <option value="">Select duration</option>
+            <option>Less than 24 hours</option>
+            <option>1–3 days</option>
+            <option>4–7 days</option>
+            <option>1–4 weeks</option>
+            <option>More than a month</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="analyse-btn" id="analyseBtn" onclick="runAnalysis()">
+        <span id="analyseBtnText">🔍 Run Analysis</span>
+        <span class="spinner" id="analyseSpinner"></span>
+      </button>
+    </div>
+
+    <!-- Results -->
+    <div id="resultsSection">
+
+      <!-- Classical AI Results -->
+      <div class="card">
+        <div class="card-title">📊 Risk Assessment Results</div>
+        <div class="results-grid">
+          <div class="result-card">
+            <div class="rc-label">Risk Score</div>
+            <div class="rc-value" id="riskVal">—</div>
+            <div class="rc-sub" id="riskLabel">—</div>
+            <div class="risk-bar-wrap"><div class="risk-bar" id="riskBar"></div></div>
+          </div>
+          <div class="result-card">
+            <div class="rc-label">Condition Class (Ce)</div>
+            <div class="rc-value low" id="ceVal">—</div>
+            <div class="rc-sub">Condition Estimate</div>
+          </div>
+          <div class="result-card">
+            <div class="rc-label">Level &amp; Grade</div>
+            <div class="rc-value low" id="lgVal">—</div>
+            <div class="rc-sub" id="lgSub">—</div>
+          </div>
+        </div>
+
+        <div class="treatment-card">
+          <h3>💊 Suggested Treatment Pathway</h3>
+          <ul class="treatment-list" id="treatmentList"></ul>
+          <div class="tags" id="tagsRow"></div>
+        </div>
+      </div>
+
+      <!-- Quantum Optimization Results -->
+      <div class="quantum-result-card" id="quantumResultCard">
+        <div class="quantum-result-header">
+          <div class="qr-icon">⚛️</div>
+          <div>
+            <h3>Quantum-Inspired Optimization</h3>
+            <p>Superposition-based probability analysis across all risk states</p>
+          </div>
+          <div class="quantum-live-pill">
+            <div class="qlive-dot"></div>
+            Active
+          </div>
+        </div>
+
+        <div class="quantum-grid">
+          <div class="q-cell">
+            <div class="q-label">Quantum Band</div>
+            <div class="q-value" id="qBand">—</div>
+            <div class="q-sub" id="qCe">—</div>
+          </div>
+          <div class="q-cell">
+            <div class="q-label">Quantum Level</div>
+            <div class="q-value" id="qLevel">—</div>
+            <div class="q-sub" id="qGrade">—</div>
+          </div>
+          <div class="q-cell q-confidence">
+            <div class="q-label">Confidence</div>
+            <div class="q-value" id="qConfidence">—</div>
+            <div class="q-sub">Measurement strength</div>
+          </div>
+          <div class="q-cell">
+            <div class="q-label">State Probabilities</div>
+            <div class="q-prob-section">
+              <div class="q-prob-row">
+                <span class="q-prob-label">Low</span>
+                <div class="q-prob-bar-wrap"><div class="q-prob-bar low" id="probLow"></div></div>
+                <span class="q-prob-pct" id="probLowPct">—</span>
+              </div>
+              <div class="q-prob-row">
+                <span class="q-prob-label">Moderate</span>
+                <div class="q-prob-bar-wrap"><div class="q-prob-bar moderate" id="probMod"></div></div>
+                <span class="q-prob-pct" id="probModPct">—</span>
+              </div>
+              <div class="q-prob-row">
+                <span class="q-prob-label">High</span>
+                <div class="q-prob-bar-wrap"><div class="q-prob-bar high" id="probHigh"></div></div>
+                <span class="q-prob-pct" id="probHighPct">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="quantum-match-note" id="quantumMatchNote"></div>
+      </div>
+
+      <!-- Coming Soon Banner -->
+      <div class="quantum-banner">
+        <div class="qb-icon">⚛️</div>
+        <div>
+          <h4>Quantum Hardware Upgrade</h4>
+          <p>Next version will run on real QAOA circuits for exponentially faster pattern recognition across thousands of symptom pathways simultaneously.</p>
+        </div>
+        <div class="soon-pill">Coming Soon</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── RECORDS PAGE ── -->
+  <div class="page" id="page-records">
+    <div class="page-header">
+      <h1>Patient Records</h1>
+      <p>All patients you have analysed — most recent first.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 Recent Analyses</div>
+      <div class="records-table-wrap">
+        <table id="recordsTable">
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Age</th>
+              <th>Risk</th>
+              <th>Class</th>
+              <th>Grade</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="recordsBody">
+            <tr><td colspan="6"><div class="empty-state"><div class="ei">📂</div>Loading records...</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+  const API = 'http://localhost:5000';
+  const token = localStorage.getItem('nv_token');
+
+  if (!token) window.location.href = '/';
+
+  const doctor = JSON.parse(localStorage.getItem('nv_doctor') || '{}');
+  if (doctor.full_name) {
+    document.getElementById('sidebarName').textContent = doctor.full_name;
+    document.getElementById('avatarInitial').textContent = doctor.full_name.charAt(0).toUpperCase();
+  }
+
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.getElementById('nav-' + name).classList.add('active');
+    if (name === 'records') loadRecords();
+    if (name === 'analyse') loadStats();
+  }
+
+  function logout() {
+    localStorage.removeItem('nv_token');
+    localStorage.removeItem('nv_doctor');
+    window.location.href = '/';
+  }
+
+  async function authFetch(url, opts = {}) {
+    return fetch(API + url, {
+      ...opts,
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, ...(opts.headers || {}) }
+    });
+  }
+
+  async function loadStats() {
+    try {
+      const res = await authFetch('/api/records');
+      const records = await res.json();
+      document.getElementById('statTotal').textContent = records.length;
+      document.getElementById('statHigh').textContent = records.filter(r => r.risk_level === 'High').length;
+      document.getElementById('statLow').textContent = records.filter(r => r.risk_level === 'Low').length;
+    } catch(e) {}
+  }
+
+  async function runAnalysis() {
+    const patientName = document.getElementById('patientName').value.trim();
+    const age = document.getElementById('age').value;
+    const symptoms = document.getElementById('symptoms').value.trim();
+    if (!patientName || !age || !symptoms) { alert('Please fill in Patient Name, Age, and Symptoms.'); return; }
+
+    document.getElementById('analyseBtn').disabled = true;
+    document.getElementById('analyseSpinner').style.display = 'inline-block';
+    document.getElementById('analyseBtnText').textContent = 'Analysing...';
+    document.getElementById('resultsSection').style.display = 'none';
+
+    try {
+      const res = await authFetch('/api/analyse', {
+        method: 'POST',
+        body: JSON.stringify({
+          patient_name: patientName,
+          age: parseInt(age),
+          gender: document.getElementById('gender').value,
+          symptoms: symptoms,
+          bp: document.getElementById('bp').value,
+          pulse: document.getElementById('pulse').value,
+          temperature: document.getElementById('temp').value,
+          spo2: document.getElementById('spo2').value,
+          medical_history: document.getElementById('history').value,
+          duration: document.getElementById('duration').value
+        })
+      });
+
+      if (res.status === 401) { logout(); return; }
+      const data = await res.json();
+      displayResults(data);
+    } catch(e) {
+      alert('Server error. Make sure Flask is running.');
+    } finally {
+      document.getElementById('analyseBtn').disabled = false;
+      document.getElementById('analyseSpinner').style.display = 'none';
+      document.getElementById('analyseBtnText').textContent = '🔍 Run Analysis';
+    }
+  }
+
+  function displayResults(data) {
+    // ── Classical results ──
+    const lvl = data.risk_level.toLowerCase();
+    document.getElementById('riskVal').textContent = data.risk_score + '%';
+    document.getElementById('riskVal').className = 'rc-value ' + lvl;
+    document.getElementById('riskLabel').textContent = data.risk_level + ' Risk';
+    document.getElementById('ceVal').textContent = data.condition_class;
+    document.getElementById('ceVal').className = 'rc-value ' + lvl;
+    document.getElementById('lgVal').textContent = data.severity_level;
+    document.getElementById('lgVal').className = 'rc-value ' + lvl;
+    document.getElementById('lgSub').textContent = data.severity_level + ' · ' + data.grade;
+
+    const bar = document.getElementById('riskBar');
+    bar.className = 'risk-bar ' + lvl;
+    bar.style.width = '0';
+
+    document.getElementById('treatmentList').innerHTML = data.treatments.map(t => `<li>${t}</li>`).join('');
+    document.getElementById('tagsRow').innerHTML = data.tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+    // ── Quantum results ──
+    const q = data.quantum;
+    if (q) {
+      const qlvl = q.quantum_band.toLowerCase();
+      document.getElementById('qBand').textContent = q.quantum_band;
+      document.getElementById('qBand').style.color = qlvl === 'high' ? '#ff6b6b' : qlvl === 'moderate' ? '#f0c040' : '#00c9a7';
+      document.getElementById('qCe').textContent = q.quantum_ce + ' · ' + q.quantum_level;
+      document.getElementById('qLevel').textContent = q.quantum_level;
+      document.getElementById('qLevel').style.color = qlvl === 'high' ? '#ff6b6b' : qlvl === 'moderate' ? '#f0c040' : '#00c9a7';
+      document.getElementById('qGrade').textContent = q.quantum_grade;
+      document.getElementById('qConfidence').textContent = q.quantum_confidence + '%';
+
+      // Probability bars (animate after short delay)
+      setTimeout(() => {
+        document.getElementById('probLow').style.width = q.probabilities.Low + '%';
+        document.getElementById('probMod').style.width = q.probabilities.Moderate + '%';
+        document.getElementById('probHigh').style.width = q.probabilities.High + '%';
+      }, 300);
+
+      document.getElementById('probLowPct').textContent = q.probabilities.Low + '%';
+      document.getElementById('probModPct').textContent = q.probabilities.Moderate + '%';
+      document.getElementById('probHighPct').textContent = q.probabilities.High + '%';
+
+      // Match / differ note
+      const noteEl = document.getElementById('quantumMatchNote');
+      if (q.quantum_band === q.classical_band) {
+        noteEl.className = 'quantum-match-note match';
+        noteEl.innerHTML = '✓ Quantum optimization confirms classical assessment — both engines agree on <strong>' + q.quantum_band + ' Risk</strong>.';
+      } else {
+        noteEl.className = 'quantum-match-note differ';
+        noteEl.innerHTML = '⚠ Quantum optimization suggests <strong>' + q.quantum_band + ' Risk</strong> vs classical <strong>' + q.classical_band + ' Risk</strong> — borderline case, review manually.';
+      }
+    }
+
+    document.getElementById('resultsSection').style.display = 'block';
+    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => { bar.style.width = data.risk_score + '%'; }, 200);
+
+    loadStats();
+  }
+
+  async function loadRecords() {
+    const tbody = document.getElementById('recordsBody');
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="ei">⏳</div>Loading...</div></td></tr>';
+    try {
+      const res = await authFetch('/api/records');
+      if (res.status === 401) { logout(); return; }
+      const records = await res.json();
+      if (!records.length) {
+        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="ei">📂</div>No records yet. Analyse your first patient!</div></td></tr>';
+        return;
+      }
+      tbody.innerHTML = records.map(r => `
+        <tr>
+          <td>${r.patient_name}</td>
+          <td>${r.age}</td>
+          <td><span class="risk-pill ${r.risk_level}">${r.risk_level}</span></td>
+          <td>${r.condition_class}</td>
+          <td>${r.grade}</td>
+          <td>${new Date(r.created_at).toLocaleDateString('en-IN')}</td>
+        </tr>
+      `).join('');
+    } catch(e) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Failed to load records.</div></td></tr>';
+    }
+  }
+
+  // Init
+  loadStats();
+</script>
+</body>
+</html>

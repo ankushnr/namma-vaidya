@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: namma-vaidya
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: JWT_SECRET_KEY
+        value: namma-vaidya-secret-key-2025

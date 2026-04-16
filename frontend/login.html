@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Namma Vaidya — Doctor Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #060f0d;
+      --surface: #0e1e1a;
+      --surface2: #162820;
+      --primary: #00c9a7;
+      --primary-dark: #009e84;
+      --accent: #e8f5f2;
+      --text: #e8f5f2;
+      --text-muted: #6b9e94;
+      --border: #1e3530;
+      --error: #ff6b6b;
+      --radius: 14px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    /* Animated background circles */
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      animation: pulse 6s ease-in-out infinite;
+    }
+    .bg-orb-1 {
+      width: 400px; height: 400px;
+      background: var(--primary);
+      top: -100px; left: -100px;
+      animation-delay: 0s;
+    }
+    .bg-orb-2 {
+      width: 300px; height: 300px;
+      background: #14a366;
+      bottom: -80px; right: -60px;
+      animation-delay: 3s;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.18; }
+      50% { transform: scale(1.1); opacity: 0.26; }
+    }
+
+    .left-top { position: relative; z-index: 1; }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.6rem;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .logo-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .hero-content {
+      position: relative; z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 0 40px;
+    }
+    .hero-content h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.2rem, 3.5vw, 3.2rem);
+      line-height: 1.1;
+      letter-spacing: -1px;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+    .hero-content h1 span { color: var(--primary); }
+    .hero-content p {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 380px;
+    }
+
+    .feature-list {
+      margin-top: 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+    .feature-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+      flex-shrink: 0;
+      box-shadow: 0 0 8px var(--primary);
+    }
+
+    .left-bottom {
+      position: relative; z-index: 1;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 64px;
+      background: var(--bg);
+      animation: fadeIn 0.6s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    /* Tab switcher */
+    .tab-switcher {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 32px;
+      border: 1px solid var(--border);
+    }
+    .tab-btn {
+      padding: 10px;
+      text-align: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      border-radius: 9px;
+      transition: all 0.25s;
+      color: var(--text-muted);
+      border: none;
+      background: transparent;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #000;
+    }
+
+    .form-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .form-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 7px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    input {
+      width: 100%;
+      padding: 13px 16px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input::placeholder { color: #2e4e48; }
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0,201,167,0.1);
+    }
+
+    .submit-btn {
+      width: 100%;
+      margin-top: 8px;
+      padding: 14px;
+      background: var(--primary);
+      color: #000;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .submit-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .msg {
+      margin-top: 14px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      display: none;
+    }
+    .msg.error { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.3); color: var(--error); }
+    .msg.success { background: rgba(0,201,167,0.1); border: 1px solid rgba(0,201,167,0.3); color: var(--primary); }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Panel visibility */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Stagger animation for form fields */
+    .form-group {
+      animation: slideUp 0.4s ease forwards;
+      opacity: 0;
+    }
+    .form-group:nth-child(1) { animation-delay: 0.05s; }
+    .form-group:nth-child(2) { animation-delay: 0.10s; }
+    .form-group:nth-child(3) { animation-delay: 0.15s; }
+    .form-group:nth-child(4) { animation-delay: 0.20s; }
+    .form-group:nth-child(5) { animation-delay: 0.25s; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+      .right-panel { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+
+  <div class="left-top">
+    <div class="logo">Namma Vaidya</div>
+    <div class="logo-sub">ನಮ್ಮ ವೈದ್ಯ · Our Doctor</div>
+  </div>
+
+  <div class="hero-content">
+    <h1>Smart Care,<br/><span>Smarter</span><br/>Decisions.</h1>
+    <p>AI-powered patient analysis for modern doctors. Assess risk, classify conditions, and get treatment pathways — instantly.</p>
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feature-dot"></div>
+        Risk scoring with Ce classification (Ce-1 / Ce-2 / Ce-3)
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot"></div>
+        Personalised treatment pathway suggestions
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot"></div>
+        Secure patient records per doctor account
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot"></div>
+        Quantum-enhanced analysis — coming soon
+      </div>
+    </div>
+  </div>
+
+  <div class="left-bottom">
+    Namma Vaidya Prototype v1.0 · Belgam Startup Event 2025
+  </div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="form-container">
+
+    <div class="tab-switcher">
+      <button class="tab-btn active" id="loginTab" onclick="switchTab('login')">Log In</button>
+      <button class="tab-btn" id="signupTab" onclick="switchTab('signup')">Create Account</button>
+    </div>
+
+    <!-- LOGIN PANEL -->
+    <div class="panel active" id="loginPanel">
+      <div class="form-title">Welcome back, Doctor</div>
+      <div class="form-subtitle">Sign in to your Namma Vaidya account</div>
+
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" placeholder="doctor@hospital.com"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="Your password"/>
+      </div>
+
+      <button class="submit-btn" id="loginBtn" onclick="doLogin()">
+        <span id="loginBtnText">Sign In →</span>
+        <span class="spinner" id="loginSpinner"></span>
+      </button>
+      <div class="msg" id="loginMsg"></div>
+
+      <div class="divider">or</div>
+      <div style="text-align:center; font-size:0.83rem; color:var(--text-muted);">
+        New here? <span style="color:var(--primary); cursor:pointer; font-weight:500;" onclick="switchTab('signup')">Create an account</span>
+      </div>
+    </div>
+
+    <!-- SIGNUP PANEL -->
+    <div class="panel" id="signupPanel">
+      <div class="form-title">Create your account</div>
+      <div class="form-subtitle">Join Namma Vaidya as a registered doctor</div>
+
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="signupName" placeholder="Dr. Kavitha Sharma"/>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="signupEmail" placeholder="doctor@hospital.com"/>
+      </div>
+      <div class="form-group">
+        <label>Hospital / Clinic</label>
+        <input type="text" id="signupHospital" placeholder="e.g. Manipal Hospital, Bengaluru"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="signupPassword" placeholder="Minimum 6 characters"/>
+      </div>
+
+      <button class="submit-btn" id="signupBtn" onclick="doSignup()">
+        <span id="signupBtnText">Create Account →</span>
+        <span class="spinner" id="signupSpinner"></span>
+      </button>
+      <div class="msg" id="signupMsg"></div>
+
+      <div class="divider">or</div>
+      <div style="text-align:center; font-size:0.83rem; color:var(--text-muted);">
+        Already have an account? <span style="color:var(--primary); cursor:pointer; font-weight:500;" onclick="switchTab('login')">Sign in</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const API = 'http://localhost:5000';
+
+  function switchTab(tab) {
+    document.getElementById('loginPanel').classList.toggle('active', tab === 'login');
+    document.getElementById('signupPanel').classList.toggle('active', tab === 'signup');
+    document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+    document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
+    document.getElementById('loginMsg').style.display = 'none';
+    document.getElementById('signupMsg').style.display = 'none';
+  }
+
+  function showMsg(id, text, type) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'msg ' + type;
+    el.style.display = 'block';
+  }
+
+  function setLoading(btnId, spinnerId, textId, loading, label) {
+    document.getElementById(btnId).disabled = loading;
+    document.getElementById(spinnerId).style.display = loading ? 'inline-block' : 'none';
+    document.getElementById(textId).textContent = loading ? 'Please wait...' : label;
+  }
+
+  async function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) return showMsg('loginMsg', 'Please fill in all fields.', 'error');
+
+    setLoading('loginBtn', 'loginSpinner', 'loginBtnText', true, 'Sign In →');
+    try {
+      const res = await fetch(`${API}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) return showMsg('loginMsg', data.error || 'Login failed.', 'error');
+
+      localStorage.setItem('nv_token', data.token);
+      localStorage.setItem('nv_doctor', JSON.stringify(data.doctor));
+      showMsg('loginMsg', '✅ Welcome back! Redirecting...', 'success');
+      setTimeout(() => { window.location.href = '/dashboard'; }, 1000);
+    } catch (e) {
+      showMsg('loginMsg', 'Cannot connect to server. Is Flask running?', 'error');
+    } finally {
+      setLoading('loginBtn', 'loginSpinner', 'loginBtnText', false, 'Sign In →');
+    }
+  }
+
+  async function doSignup() {
+    const full_name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const hospital = document.getElementById('signupHospital').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    if (!full_name || !email || !password) return showMsg('signupMsg', 'Please fill in all required fields.', 'error');
+    if (password.length < 6) return showMsg('signupMsg', 'Password must be at least 6 characters.', 'error');
+
+    setLoading('signupBtn', 'signupSpinner', 'signupBtnText', true, 'Create Account →');
+    try {
+      const res = await fetch(`${API}/api/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ full_name, email, password, hospital })
+      });
+      const data = await res.json();
+      if (!res.ok) return showMsg('signupMsg', data.error || 'Signup failed.', 'error');
+
+      localStorage.setItem('nv_token', data.token);
+      showMsg('signupMsg', '✅ Account created! Redirecting...', 'success');
+      setTimeout(() => { window.location.href = '/dashboard'; }, 1000);
+    } catch (e) {
+      showMsg('signupMsg', 'Cannot connect to server. Is Flask running?', 'error');
+    } finally {
+      setLoading('signupBtn', 'signupSpinner', 'signupBtnText', false, 'Create Account →');
+    }
+  }
+
+  // If already logged in, go straight to dashboard
+  if (localStorage.getItem('nv_token')) {
+    window.location.href = '/dashboard';
+  }
+
+  // Allow Enter key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      if (document.getElementById('loginPanel').classList.contains('active')) doLogin();
+      else doSignup();
+    }
+  });
+</script>
+</body>
+</html>
